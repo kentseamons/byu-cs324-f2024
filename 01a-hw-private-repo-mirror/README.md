@@ -1,29 +1,48 @@
 # Mirroring the Class GitHub Repository
 
 Many of the assignments for this class are hosted in a GitHub repository.
-Individual assignments are in subfolders of that repository.  Within the folder
-for every assignment is a `README.md` file, containing the description for the
-assignment.  The folder also contains other files that are part of the
-assignment.  The description of the assignment is often best viewed on the
-GitHub site itself with a Web browser.  The accompanying files can be
-downloaded directly from the folder, with a Web browser. However, creating a
-_mirror_ of the repository helps you to more easily download files associated
-with assignments, keep them up-to-date, and simultaneously version your own
-code by committing it to your own private GitHub repository.
+Individual assignments are in subfolders of that repository. Within the 
+folder for every assignment is a `README.md` file, containing the description 
+for the assignment. The description of the assignment is often best viewed 
+on the GitHub site itself or in VSCode by right-clicking the file and selecting 
+the "Open Preview" option. Every assignment folder also contains other files 
+that are part of the assignment.  
 
-The path of the class "upstream" repository and the name of own "private"
-repository will be given to you elsewhere and will be referred to in this
-document as "CLASS\_REPO\_PATH" and "PRIVATE\_REPO\_NAME", respectively.
-Additionally, "USERNAME" refers to your GitHub username.
+In order to download and access the assignment folders and files, you will be 
+creating a _mirror_ of the repository. Doing so helps you to more easily download 
+files associated with assignments, keep them up-to-date, and simultaneously 
+version your own code by committing it to your own private GitHub repository.
 
-These instructions have you first create your mirrored repository on your
-primary development system and then optionally create clones of that repository
-on other systems.
+The instructions further below reference the names "CLASS\_REPO\_PATH", 
+"PRIVATE\_REPO\_NAME", and "USERNAME". These names are meant to be replaced 
+with an actual name:
+- "CLASS\_REPO\_PATH" should be replaced with the path of the class "upstream" repository.
+- "PRIVATE\_REPO\_NAME" should be replaced with the name of your own "private" repository. 
+- "USERNAME" should be replaced with your GitHub username.
+
+The instructions below have you first create your mirrored repository on your
+primary development system and then optionally create clones of that repository on other systems.
 
 
 # Preparation
 
-Log on to your primary development system, either directly or remotely via SSH.
+### SSH Into CS Lab Machines
+Log on to your primary development system, either directly or remotely via SSH. 
+For this class, you will need to use a Linux machine. Specifically, the CS lab machines. 
+For information on accessing the CS lab machines remotely, see the [remote access](../REMOTE_ACCESS.md) instruction file. 
+
+Although using the CS lab machines may not be required for every assignment, it is still
+strongly recommended that you use the CS lab machines since all assignments are designed
+to be ran, tested, and graded on the lab machines. You are always allowed to clone your
+own private repository onto any machine you'd like, as you can see in the [Create Additional Clones](#create-additional-clones-of-your-private-repository-optional) section.
+
+
+### VSCode (Optional)
+At some point either during homework #1 or within the first couple weeks of class, we recommend
+that you install VSCode and use the ssh extension to conveniently and remotely use the VSCode editor on
+the CS lab machines. You can see the setup instructions for this in the [vscode-setup README](../contrib/vscode-setup/README.md).
+Although VSCode isn't required to complete this class, using its ssh features, particularly for
+the labs, will likely make your life much easier.
 
 
 # Register an SSH Key for Use with GitHub
@@ -111,10 +130,9 @@ will also be a mirror of the upstream class repository.
     - Make sure the visibility of the repository is _Private_ (Step 4).
     - Do _not_ check the box "Initialize this repository with a README" (Step 5).
 
- 2. Please double-check that your repository is _private_.
+ 2. Please double-check that your repository is _private_ and that your repository does not contain _any_ auto-generated files. Redo step 1 if your repository fails this check.
 
- 3. Clone the upstream repository by running the following from the
-    terminal:
+ 3. Clone the upstream class repository by running the following command in the terminal:
 
     (Substitute "CLASS\_REPO\_PATH" with the path of the upstream class
     repository.)
@@ -124,7 +142,7 @@ will also be a mirror of the upstream class repository.
     ```
 
  4. Push a mirror of the upstream repository to the new, private repository,
-    which you have just created:
+    which you previously created:
 
     (Substitute "USERNAME" with your GitHub username and "PRIVATE\_REPO\_NAME"
     with the name of your private repository.)
@@ -167,6 +185,11 @@ This is a one-time process to clone the private repository you have created.
     git remote -v
     ```
 
+    After running `git remote -v`, you should see 4 items listed. Two items should start 
+    with the word `origin` and list a path which contains "USERNAME/PRIVATE_REPO_NAME". 
+    The other two items should start with the word `upstream` and list a path which contains
+    "CLASS\_REPO\_PATH".
+
 
 # Create Additional Clones of Your Private Repository (Optional)
 
@@ -180,8 +203,10 @@ on _that_ machine.  Just remember that you will need to keep all clones
 
 # Update Your Mirrored Repository from the Upstream
 
-Do this every time you would like to pull down the changes from the upstream
-repository and integrate them into your own repository.  Remember that you will
+Throughout the semester we will be adding changes and fixes to the upstream class
+repository. Every time you start an assignment, and as often as you'd like, please
+run the commands listed below to pull down the changes from the upstream class repository
+and integrate them into your own private repository. Remember that you will
 need to do this for any and all clones
 [that you have made of your repository](#create-a-clone-of-your-private-repository).
 
@@ -220,20 +245,39 @@ need to do this for any and all clones
 
 # Commit and Push Local Changes to Your Private Repo
 
-Do this every time you want to commit changes to the clone of your repository
-and push them out to the repository:
+It is best practice to frequently commit your local changes. Follow the steps 
+below every time you want to commit changes to the clone of your repository
+and push them out to your private repository on GitHub:
 
- 1. Commit any local changes that you've made (i.e., in your own development):
+ 1. Add any changed files to git's "staging" area.
 
     (Replace "..." with the names of any files or directories that have
     changes.)
 
     ```bash
-    git commit ...
+    git add ...
     ```
 
- 2. Push out your local commits to your repository:
+ 2. Commit the changed files that were previously added:
+ 
+    (Replace the contents of "My commit message" with a short description of the changes you have made.)
+
+    ```bash
+    git commit -m "My commit message"
+    ```
+
+    Note that if you run `git commit` without the `-m` flag, git will open up a text editor for you to write a description for your commit.
+
+ 3. Push out your local commits to your private repository on GitHub:
 
     ```bash
     git push
     ```
+
+NOTE: The add and commit process above isn't the only way to commit your local changes. 
+The offical git documentation for [`git commit`](https://git-scm.com/docs/git-commit) lists
+several other ways you can commit your local changes.
+
+Remember, it is best practice to frequently commit your changes. Students in past semesters
+who did not commit their local changes often ran into problems when trying to pull down
+updates from the class upstream repository.

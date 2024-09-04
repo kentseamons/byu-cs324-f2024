@@ -200,13 +200,12 @@ void part5(char *filename) {
 
 	printf("===== Question 47 =====\n");
 
-	printf("===== Question 48 =====\n");
-
 }
 
 void part6() {
-	printf("===== Question 49 =====\n");
+	printf("===== Question 48 =====\n");
 	char *s1;
 
-	printf("===== Question 50 (no code changes) =====\n");
+	printf("===== Question 49 (no code changes) =====\n");
+	
 }
