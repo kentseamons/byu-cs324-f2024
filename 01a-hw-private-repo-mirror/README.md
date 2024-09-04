@@ -26,12 +26,23 @@ primary development system and then optionally create clones of that repository 
 
 # Preparation
 
+### SSH Into CS Lab Machines
 Log on to your primary development system, either directly or remotely via SSH. 
 For this class, you will need to use a Linux machine. Specifically, the CS lab machines. 
 For information on accessing the CS lab machines remotely, see the [remote access](../REMOTE_ACCESS.md) instruction file. 
+
 Although using the CS lab machines may not be required for every assignment, it is still
-strongly recommended that you use the CS lab machines since all your submitted assignments
-will be ran and graded on the lab machines.
+strongly recommended that you use the CS lab machines since all assignments are designed
+to be ran, tested, and graded on the lab machines. You are always allowed to clone your
+own private repository onto any machine you'd like, as you can see in the [Create Additional Clones](#create-additional-clones-of-your-private-repository-optional) section.
+
+
+### VSCode (Optional)
+At some point either during homework #1 or within the first couple weeks of class, we recommend
+that you install VSCode and use the ssh extension to conveniently and remotely use the VSCode editor on
+the CS lab machines. You can see the setup instructions for this in the [vscode-setup README](../contrib/vscode-setup/README.md).
+Although VSCode isn't required to complete this class, using its ssh features, particularly for
+the labs, will likely make your life much easier.
 
 
 # Register an SSH Key for Use with GitHub
