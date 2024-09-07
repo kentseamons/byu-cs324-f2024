@@ -202,7 +202,7 @@ examples of this later in the assignment.
 ## Summary and Main Points
 
 While you will get more hands on with `printf()` and friends in the exercises
-at follow, the most important things are:
+that follow, the most important things are:
 
  - Text is really just a bunch of integer values that an application (e.g., a
    terminal) knows how to interpret and present a certain way--i.e., as text.
