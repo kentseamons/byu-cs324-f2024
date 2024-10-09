@@ -16,7 +16,7 @@ RULE_SIGTIMING_PAIR_RE = re.compile(r'^([A-Z0-9_]+)([=<>])(.+)')
 class KillTest:
     signals = './signals'
     killer = './killer'
-    
+
     scenario = None
     solution = None
     max_time = None
@@ -127,54 +127,54 @@ class KillTest:
 class KillTest0(KillTest):
     scenario = 0
     solution = [1, 2, 25]
-    
+
 class KillTest1(KillTest):
     scenario = 1
     solution = []
-    
+
 class KillTest2(KillTest):
     scenario = 2
     solution = [1, 2]
-    
+
 class KillTest3(KillTest):
     scenario = 3
     solution = [1, 2, 1, 2]
     rules = KillTest.rules + \
             ['SIGTIMING: ' + \
             'SIGHUP<3,SIGINT<3,1<3,2<3']
-    
+
 class KillTest4(KillTest):
     scenario = 4
     solution = [1, 1, 2, 2]
-    
+
 class KillTest5(KillTest):
     scenario = 5
     solution = [1]
-    
+
 class KillTest6(KillTest):
     scenario = 6
     solution = [1, 2, 7, 10]
-    
+
 class KillTest7(KillTest):
     scenario = 7
     solution = [1, 2, 7]
-    
+
 class KillTest8(KillTest):
     scenario = 8
     solution = [1, 2, 6]
-    
+
 class KillTest9(KillTest):
     scenario = 9
     solution = [8, 9, 1, 2]
     rules = KillTest.rules + \
             ['NOSIG: SIGHUP,SIGINT,1,2']
-    
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('scenario', action='store',
             nargs='?', type=int, choices=range(NUM_TESTS))
     args = parser.parse_args(sys.argv[1:])
-    
+
     thismodule = sys.modules[__name__]
     if args.scenario is None:
         score = 0
