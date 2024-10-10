@@ -5,6 +5,7 @@ import re
 import subprocess
 import sys
 import time
+from typing import Callable, Any
 
 NUM_TESTS = 10
 
@@ -131,7 +132,11 @@ class KillTest:
                     return False
         return True
 
-    def _enforceSignalSetRequirements(self, sigs_str, strace_lines, expectUsed):
+    SignalAnalysisResult = None | tuple[bool, str]
+
+    def _enforceSignalSetRequirements(self, sigs_str: str, strace_lines: list[str], expectUsed: bool):
+        """Enforces that all system calls to kill() use signals
+        which are always in or always out of the sigs_str comma separated list"""
         result = self._processSignalsSent(sigs_str, strace_lines, expectUsed)
         if result is None:
             return True
@@ -141,19 +146,26 @@ class KillTest:
             return False
         return True
 
-    def _processSignalsSent(self, sigs_str, strace_lines, expectUsed):
+    def _processSignalsSent(self, sigs_str: str, strace_lines: list[str], expectUsed: bool) -> SignalAnalysisResult:
+        """Reports whether all of the kill() calls conform to the constraint represented by sigs_str and expectUsed"""
         sigs_set = self._constructUniqueSet(sigs_str)
         return self._forEachSignalSent(strace_lines, self._expectSignalUsed(sigs_set, expectUsed))
 
-    def _expectSignalUsed(self, sigs_set, expectUsed):
+    def _expectSignalUsed(self, sigs_set: set[str], expectUsed: bool) -> SignalAnalysisResult:
+        """Produces a function that can be passed to _forEachSignalSent() to test if the signals are in the set"""
         def processSignal(sig_used):
             return None if (sig_used in sigs_set) == expectUsed else (True, sig_used)
         return processSignal
 
-    def _constructUniqueSet(self, commaSeparatedList):
+    def _constructUniqueSet(self, commaSeparatedList: str) -> list[str]:
+        """Interprets a comma separated list into a unique set of distinct values"""
         return set([s.strip() for s in commaSeparatedList.split(',')])
 
-    def _forEachSignalSent(self, strace_lines, eachSignal):
+    # Generics are new in python 3.12. Until that's the main version, we'll need to use looser typing
+    # def _forEachSignalSent[T](self, strace_lines: list[str], eachSignal: Callable[[str], T]) -> T | None:
+    def _forEachSignalSent(self, strace_lines: list[str], eachSignal: Callable[[str], Any]) -> Any | None:
+        """Processes each system call to kill() be calling the eachSignal() method
+        If the return value from eachSignal() is not None, it exits immediately and returns that value"""
         for line in strace_lines:
             m = KILL_RE.search(line)
             if m is None:
