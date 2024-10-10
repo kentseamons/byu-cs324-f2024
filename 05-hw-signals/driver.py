@@ -168,9 +168,9 @@ class KillTest:
             m = KILL_RE.search(line)
             if m is None:
                 continue
-            sig_used = m.group(2)   # Note how these are provided in a different order than they are extracted
             time_used = m.group(1)  # NOTE: This is the relative time since a previous call, not an absolute time
-            result = eachSignal(sig_used, time_used)
+            sig_used = m.group(2)
+            result = eachSignal(time_used, sig_used)
             if result is not None:
                 return result
 
