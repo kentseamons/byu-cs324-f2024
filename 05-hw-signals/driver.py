@@ -106,8 +106,7 @@ class KillTest:
             timing = int(timing.strip())
             sig_mapping[sig] = op, timing
 
-        def defiesTimingRule(time_used_str, sig_used) -> bool | None:
-            time_used = int(time_used_str)
+        def defiesTimingRule(time_used, sig_used) -> bool | None:
             if sig_used not in sig_mapping:
                 return None
             op, timing = sig_mapping[sig_used]
@@ -161,16 +160,18 @@ class KillTest:
 
     # Generics are new in python 3.12. Until that's the main version, we'll need to use looser typing
     # def _forEachSignalSent[T](self, strace_lines: list[str], eachSignal: Callable[[str, str], T]) -> T | None:
-    def _forEachSignalSent(self, strace_lines: list[str], eachSignal: Callable[[str, str], Any|None]) -> Any | None:
+    def _forEachSignalSent(self, strace_lines: list[str], eachSignal: Callable[[int, str], Any|None]) -> Any | None:
         """Processes each system call to kill() be calling the eachSignal() method
         If the return value from eachSignal() is not None, it exits immediately and returns that value"""
+        curr_time = 0
         for line in strace_lines:
             m = KILL_RE.search(line)
             if m is None:
                 continue
-            time_used = m.group(1)  # NOTE: This is the relative time since a previous call, not an absolute time
+            time_passed = int(m.group(1))
+            curr_time += time_passed
             sig_used = m.group(2)
-            result = eachSignal(time_used, sig_used)
+            result = eachSignal(curr_time, sig_used)
             if result is not None:
                 return result
 
