@@ -106,31 +106,29 @@ class KillTest:
             timing = int(timing.strip())
             sig_mapping[sig] = op, timing
 
-        for line in strace_lines:
-            m = KILL_RE.search(line)
-            if m is None:
-                continue
-            time_used = int(m.group(1))
-            sig_used = m.group(2)
+        def defiesTimingRule(time_used_str, sig_used) -> bool | None:
+            time_used = int(time_used_str)
             if sig_used not in sig_mapping:
-                continue
+                return None
             op, timing = sig_mapping[sig_used]
             if op == '<':
                 if time_used >= timing:
                     print(f'\n{sig_used} can only be sent before {timing} ' + \
                             'seconds have passed\n')
-                    return False
+                    return True
             elif op == '>':
                 if time_used < timing:
                     print(f'\n{sig_used} can only be sent after {timing} ' + \
                             'seconds have passed\n')
-                    return False
+                    return True
             elif op in ('=', None):
                 if time_used != timing:
                     print(f'\n{sig_used} can only be sent when exactly ' + \
                             '{timing} seconds have passed\n')
-                    return False
-        return True
+                    return True
+
+        defiedAnyTimingRule = self._forEachSignalSent(strace_lines, defiesTimingRule)
+        return not defiedAnyTimingRule
 
     SignalAnalysisResult = None | tuple[bool, str]
 
@@ -153,7 +151,7 @@ class KillTest:
 
     def _expectSignalUsed(self, sigs_set: set[str], expectUsed: bool) -> SignalAnalysisResult:
         """Produces a function that can be passed to _forEachSignalSent() to test if the signals are in the set"""
-        def processSignal(sig_used):
+        def processSignal(time_used, sig_used):
             return None if (sig_used in sigs_set) == expectUsed else (True, sig_used)
         return processSignal
 
@@ -162,16 +160,17 @@ class KillTest:
         return set([s.strip() for s in commaSeparatedList.split(',')])
 
     # Generics are new in python 3.12. Until that's the main version, we'll need to use looser typing
-    # def _forEachSignalSent[T](self, strace_lines: list[str], eachSignal: Callable[[str], T]) -> T | None:
-    def _forEachSignalSent(self, strace_lines: list[str], eachSignal: Callable[[str], Any]) -> Any | None:
+    # def _forEachSignalSent[T](self, strace_lines: list[str], eachSignal: Callable[[str, str], T]) -> T | None:
+    def _forEachSignalSent(self, strace_lines: list[str], eachSignal: Callable[[str, str], Any|None]) -> Any | None:
         """Processes each system call to kill() be calling the eachSignal() method
         If the return value from eachSignal() is not None, it exits immediately and returns that value"""
         for line in strace_lines:
             m = KILL_RE.search(line)
             if m is None:
                 continue
-            sig_used = m.group(2)
-            result = eachSignal(sig_used)
+            sig_used = m.group(2)   # Note how these are provided in a different order than they are extracted
+            time_used = m.group(1)  # NOTE: This is the relative time since a previous call, not an absolute time
+            result = eachSignal(sig_used, time_used)
             if result is not None:
                 return result
 
