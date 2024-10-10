@@ -12,6 +12,7 @@ KILL_RE = re.compile(r'^\s*(\d+)\.\d+\s+kill\(\d+, (SIG[A-Z0-9]+|\d+)\)')
 RULE_NOSIG_RE = re.compile(r'^NOSIG:\s*(.+)')
 RULE_SIGTIMING_RE = re.compile(r'^SIGTIMING:\s*(.+)')
 RULE_SIGTIMING_PAIR_RE = re.compile(r'^([A-Z0-9_]+)([=<>])(.+)')
+RULE_WHITELIST_RE = re.compile(r'^WHTLST:\s*(.+)')
 
 class KillTest:
     signals = './signals'
@@ -20,7 +21,10 @@ class KillTest:
     scenario = None
     solution = None
     max_time = None
-    rules = ['NOSIG: SIGKILL,9']
+    rules = [
+        'NOSIG: SIGKILL,9',
+        'WHTLST: SIGHUP,SIGINT,SIGQUIT,SIGTERM,SIGPWR,SIGUSR1,SIGSTKFLT,SIGSYS,SIGUSR2,SIGUSR1,SIGUSR2,SIGCHLD',
+        ]
 
     def grade(self):
         cmd = ['strace', '-r', '-e', 'trace=%signal',
@@ -57,31 +61,35 @@ class KillTest:
 
     def apply_rules(self, strace_lines):
         for rule in self.rules:
+            # Enforce whitelisted signals
+            m = RULE_WHITELIST_RE.search(rule)
+            if m is not None:
+                if not self.apply_whtlst(m.group(1), strace_lines):
+                    return False
+                continue
+
             # Disallowed signals
             m = RULE_NOSIG_RE.search(rule)
             if m is not None:
                 if not self.apply_nosig(m.group(1), strace_lines):
                     return False
                 continue
+
             # Signals with timing requirements
             m = RULE_SIGTIMING_RE.search(rule)
             if m is not None:
                 if not self.apply_sig_timing(m.group(1), strace_lines):
                     return False
                 continue
+
         return True
 
+    def apply_whtlst(self, sigs_str, strace_lines):
+        return self._enforceSignalSetRequirements(sigs_str, strace_lines, True)
+
+
     def apply_nosig(self, sigs_str, strace_lines):
-        sigs_set = set([s.strip() for s in sigs_str.split(',')])
-        for line in strace_lines:
-            m = KILL_RE.search(line)
-            if m is None:
-                continue
-            sig_used = m.group(2)
-            if sig_used in sigs_set:
-                print(f'\n{sig_used} not allowed\n')
-                return False
-        return True
+        return self._enforceSignalSetRequirements(sigs_str, strace_lines, False)
 
     def apply_sig_timing(self, sig_timing, strace_lines):
         sig_mapping = {}
@@ -123,6 +131,37 @@ class KillTest:
                     return False
         return True
 
+    def _enforceSignalSetRequirements(self, sigs_str, strace_lines, expectUsed):
+        result = self._processSignalsSent(sigs_str, strace_lines, expectUsed)
+        if result is None:
+            return True
+        usedDisallowedSignal, sig_used = result
+        if usedDisallowedSignal:
+            print(f'\n{sig_used} not allowed\n')
+            return False
+        return True
+
+    def _processSignalsSent(self, sigs_str, strace_lines, expectUsed):
+        sigs_set = self._constructUniqueSet(sigs_str)
+        return self._forEachSignalSent(strace_lines, self._expectSignalUsed(sigs_set, expectUsed))
+
+    def _expectSignalUsed(self, sigs_set, expectUsed):
+        def processSignal(sig_used):
+            return None if (sig_used in sigs_set) == expectUsed else (True, sig_used)
+        return processSignal
+
+    def _constructUniqueSet(self, commaSeparatedList):
+        return set([s.strip() for s in commaSeparatedList.split(',')])
+
+    def _forEachSignalSent(self, strace_lines, eachSignal):
+        for line in strace_lines:
+            m = KILL_RE.search(line)
+            if m is None:
+                continue
+            sig_used = m.group(2)
+            result = eachSignal(sig_used)
+            if result is not None:
+                return result
 
 class KillTest0(KillTest):
     scenario = 0
