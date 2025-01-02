@@ -575,10 +575,12 @@ how to compare and copy both strings and arrays of arbitrary values in C.
 
 ## Summary and Main Points
 
-String comparison (i.e., with `strcmp()`) differs from basic byte comparison
-(i.e.,  `memcmp()`) in that string comparison stops comparing the strings when
-a null character is encountered, while byte comparison with `memcmp()` compares
-as many bytes as you tell it to, independent of byte values.
+String comparison differs from arbitrary byte comparison in the following ways:
+
+ - String comparison with `strcmp()` compares strings byte-by-byte until a null
+   character is encountered;
+ - Byte comparison with `memcmp()` compares bytes up to the specified number of
+   bytes, independent of byte values.
 
 
 # Part 5 - Input/Output
